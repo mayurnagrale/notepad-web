@@ -1,18 +1,20 @@
 /**
- * Whiteboard Canvas Module - Interactive diagramming & shape drawing
+ * Whiteboard Canvas Module - Isolated, independent diagramming & drawing per section
  */
 
 export class WhiteboardCanvas {
-  constructor(canvasElement) {
+  constructor(canvasElement, initialShapes = [], onChange = null) {
     this.canvas = canvasElement;
     this.ctx = this.canvas.getContext('2d');
-    this.currentTool = 'rect';
+    this.currentTool = 'freehand';
     this.strokeColor = '#38bdf8';
     this.fillColor = '#1e293b';
     this.lineWidth = 3;
     
-    this.shapes = [];
+    // Independent shapes per canvas instance (no global leakage!)
+    this.shapes = Array.isArray(initialShapes) ? JSON.parse(JSON.stringify(initialShapes)) : [];
     this.history = [];
+    this.onChange = onChange;
     this.isDrawing = false;
     this.startX = 0;
     this.startY = 0;
@@ -20,17 +22,18 @@ export class WhiteboardCanvas {
 
     this.initCanvasSize();
     this.bindEvents();
-    this.loadFromStorage();
+    if (this.shapes.length > 0) {
+      setTimeout(() => this.render(), 10);
+    }
   }
 
   initCanvasSize() {
     const parent = this.canvas.parentElement;
-    this.canvas.width = parent.clientWidth || 1200;
-    this.canvas.height = parent.clientHeight || 800;
+    this.canvas.width = parent.clientWidth || 800;
+    this.canvas.height = 300;
     window.addEventListener('resize', () => {
-      const imgData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-      this.canvas.width = parent.clientWidth || 1200;
-      this.canvas.height = parent.clientHeight || 800;
+      this.canvas.width = parent.clientWidth || 800;
+      this.canvas.height = 300;
       this.render();
     });
   }
@@ -41,6 +44,31 @@ export class WhiteboardCanvas {
     this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e));
     this.canvas.addEventListener('mouseleave', () => {
       if (this.isDrawing) this.onMouseUp();
+    });
+
+    // Touch support for mobile / tablets
+    this.canvas.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      const mouseEvent = new MouseEvent('mousedown', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      });
+      this.canvas.dispatchEvent(mouseEvent);
+    }, { passive: false });
+
+    this.canvas.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      const mouseEvent = new MouseEvent('mousemove', {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      });
+      this.canvas.dispatchEvent(mouseEvent);
+      e.preventDefault();
+    }, { passive: false });
+
+    this.canvas.addEventListener('touchend', () => {
+      const mouseEvent = new MouseEvent('mouseup', {});
+      this.canvas.dispatchEvent(mouseEvent);
     });
   }
 
@@ -66,7 +94,7 @@ export class WhiteboardCanvas {
         width: this.lineWidth
       };
     } else if (this.currentTool === 'text') {
-      const text = prompt('Enter text for diagram node:', 'Process Node');
+      const text = prompt('Enter text for diagram label:');
       if (text) {
         this.saveState();
         this.shapes.push({
@@ -77,7 +105,7 @@ export class WhiteboardCanvas {
           color: this.strokeColor
         });
         this.render();
-        this.saveToStorage();
+        this.notifyChange();
       }
       this.isDrawing = false;
     }
@@ -134,7 +162,7 @@ export class WhiteboardCanvas {
     }
 
     this.render();
-    this.saveToStorage();
+    this.notifyChange();
   }
 
   drawShape(s) {
@@ -152,7 +180,11 @@ export class WhiteboardCanvas {
         const w = Math.abs(s.x2 - s.x1);
         const h = Math.abs(s.y2 - s.y1);
         this.ctx.beginPath();
-        this.ctx.roundRect(x, y, w, h, 8);
+        if (this.ctx.roundRect) {
+          this.ctx.roundRect(x, y, w, h, 6);
+        } else {
+          this.ctx.rect(x, y, w, h);
+        }
         this.ctx.fill();
         this.ctx.stroke();
         break;
@@ -163,20 +195,7 @@ export class WhiteboardCanvas {
         const cx = Math.min(s.x1, s.x2) + rx;
         const cy = Math.min(s.y1, s.y2) + ry;
         this.ctx.beginPath();
-        this.ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.stroke();
-        break;
-      }
-      case 'diamond': {
-        const cx = (s.x1 + s.x2) / 2;
-        const cy = (s.y1 + s.y2) / 2;
-        this.ctx.beginPath();
-        this.ctx.moveTo(cx, s.y1);
-        this.ctx.lineTo(s.x2, cy);
-        this.ctx.lineTo(cx, s.y2);
-        this.ctx.lineTo(s.x1, cy);
-        this.ctx.closePath();
+        this.ctx.ellipse(cx, cy, Math.max(1, rx), Math.max(1, ry), 0, 0, Math.PI * 2);
         this.ctx.fill();
         this.ctx.stroke();
         break;
@@ -194,9 +213,8 @@ export class WhiteboardCanvas {
         this.ctx.lineTo(s.x2, s.y2);
         this.ctx.stroke();
 
-        // Arrowhead
         const angle = Math.atan2(s.y2 - s.y1, s.x2 - s.x1);
-        const headLen = 14;
+        const headLen = 12;
         this.ctx.beginPath();
         this.ctx.moveTo(s.x2, s.y2);
         this.ctx.lineTo(s.x2 - headLen * Math.cos(angle - Math.PI / 6), s.y2 - headLen * Math.sin(angle - Math.PI / 6));
@@ -217,7 +235,7 @@ export class WhiteboardCanvas {
       }
       case 'text': {
         this.ctx.fillStyle = s.color || this.strokeColor;
-        this.ctx.font = '14px Inter, sans-serif';
+        this.ctx.font = '13px Inter, sans-serif';
         this.ctx.fillText(s.text, s.x, s.y);
         break;
       }
@@ -234,7 +252,7 @@ export class WhiteboardCanvas {
 
   saveState() {
     this.history.push(JSON.stringify(this.shapes));
-    if (this.history.length > 30) this.history.shift();
+    if (this.history.length > 25) this.history.shift();
   }
 
   undo() {
@@ -242,43 +260,20 @@ export class WhiteboardCanvas {
       const prev = this.history.pop();
       this.shapes = JSON.parse(prev);
       this.render();
-      this.saveToStorage();
+      this.notifyChange();
     }
   }
 
   clear() {
-    if (confirm('Clear the whiteboard canvas?')) {
-      this.saveState();
-      this.shapes = [];
-      this.render();
-      this.saveToStorage();
-    }
+    this.saveState();
+    this.shapes = [];
+    this.render();
+    this.notifyChange();
   }
 
-  exportPNG() {
-    const link = document.createElement('a');
-    link.download = `diagram-${Date.now()}.png`;
-    link.href = this.canvas.toDataURL('image/png');
-    link.click();
-  }
-
-  saveToStorage() {
-    try {
-      localStorage.setItem('npp_canvas_shapes', JSON.stringify(this.shapes));
-    } catch (e) {
-      console.warn('Canvas storage failed', e);
-    }
-  }
-
-  loadFromStorage() {
-    try {
-      const saved = localStorage.getItem('npp_canvas_shapes');
-      if (saved) {
-        this.shapes = JSON.parse(saved);
-        this.render();
-      }
-    } catch (e) {
-      console.warn('Could not load canvas data', e);
+  notifyChange() {
+    if (typeof this.onChange === 'function') {
+      this.onChange(this.shapes);
     }
   }
 }

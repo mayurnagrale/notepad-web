@@ -844,6 +844,13 @@ html, body {
   border-color: var(--accent-green);
 }
 
+.find-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 55px;
+  user-select: none;
+}
+
 .btn-close-find {
   background: transparent;
   border: none;

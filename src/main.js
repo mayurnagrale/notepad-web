@@ -42,6 +42,11 @@ class NotepadApp {
     this.autoSaveTimer = null;
     this.editingSectionId = null;
 
+    // Find in document state
+    this.findMatches = [];
+    this.findMatchIndex = -1;
+    this.findQuery = '';
+
     this.init();
   }
 
@@ -92,6 +97,12 @@ class NotepadApp {
     this.renderTabs();
     this.renderNotebook();
     this.updateStatusMetrics();
+    // Reset find state for the new document
+    this.findMatches = [];
+    this.findMatchIndex = -1;
+    this.findQuery = '';
+    const countEl = document.getElementById('find-count');
+    if (countEl) countEl.textContent = '';
   }
 
   closeTab(docId) {
@@ -112,7 +123,7 @@ class NotepadApp {
     if (!container || !activeDoc) return;
 
     if (titleEl && document.activeElement !== titleEl) {
-      titleEl.textContent = activeDoc.title;
+      titleEl.textContent = activeDoc.title || 'quick-notes';
     }
 
     container.innerHTML = '';
@@ -210,7 +221,7 @@ class NotepadApp {
     body.className = 'section-body';
 
     if (isDiagram) {
-      // Diagram Section: Supports pasting image, uploading image/svg, or whiteboard canvas!
+      // Independent diagram per section / page (Image paste or isolated Canvas)
       body.appendChild(this.createDiagramCardBody(sec));
     } else {
       // Note Section: Seamless typing like Notepad
@@ -290,7 +301,7 @@ class NotepadApp {
     card.className = 'diagram-card';
 
     if (sec.imageSrc) {
-      // Image already attached (pasted or uploaded diagram)
+      // Independent diagram image attached to this section
       const container = document.createElement('div');
       container.className = 'diagram-image-container';
 
@@ -325,7 +336,7 @@ class NotepadApp {
       btnRemove.className = 'btn-sm';
       btnRemove.textContent = '🗑️ Remove Image';
       btnRemove.addEventListener('click', () => {
-        this.docManager.updateSection(sec.id, { imageSrc: null, diagramMode: 'image' });
+        this.docManager.updateSection(sec.id, { imageSrc: null, diagramMode: 'image', canvasData: [] });
         this.renderNotebook();
         this.triggerAutoSave();
       });
@@ -339,19 +350,20 @@ class NotepadApp {
       card.appendChild(container);
 
     } else if (sec.diagramMode === 'canvas') {
-      // Canvas Drawing Mode
+      // Canvas Drawing Mode - ISOLATED to this section's own data
       const wrapper = document.createElement('div');
       wrapper.className = 'diagram-canvas-wrapper';
 
       const toolbar = document.createElement('div');
       toolbar.className = 'diagram-canvas-toolbar';
       toolbar.innerHTML = `
+        <button data-tool="freehand">✏️ Draw</button>
+        <button data-tool="line">― Line</button>
+        <button data-tool="arrow">➔ Arrow</button>
         <button data-tool="rect">▭ Rect</button>
         <button data-tool="circle">◯ Circle</button>
-        <button data-tool="arrow">➔ Arrow</button>
-        <button data-tool="freehand">✏️ Draw</button>
         <button data-tool="clear" style="margin-left: auto;">🗑️ Clear</button>
-        <button data-tool="done" style="color: var(--accent-green); font-weight: 600;">✓ Done</button>
+        <button data-tool="done" style="color: var(--accent-green); font-weight: 600;">✓ Save Diagram</button>
       `;
 
       const canvas = document.createElement('canvas');
@@ -362,11 +374,13 @@ class NotepadApp {
       card.appendChild(wrapper);
 
       setTimeout(() => {
-        const wb = new WhiteboardCanvas(canvas);
-        if (sec.canvasData) {
-          wb.shapes = sec.canvasData;
-          wb.render();
-        }
+        // Pass ONLY this section's canvasData
+        const initialShapes = sec.canvasData ? JSON.parse(JSON.stringify(sec.canvasData)) : [];
+        const wb = new WhiteboardCanvas(canvas, initialShapes, (updatedShapes) => {
+          sec.canvasData = updatedShapes;
+          this.docManager.updateSection(sec.id, { canvasData: updatedShapes });
+          this.triggerAutoSave();
+        });
 
         toolbar.querySelectorAll('[data-tool]').forEach(b => {
           b.addEventListener('click', () => {
@@ -378,6 +392,7 @@ class NotepadApp {
               this.docManager.updateSection(sec.id, { imageSrc: dataUrl, canvasData: wb.shapes });
               this.renderNotebook();
               this.triggerAutoSave();
+              this.showToast('📊 Diagram saved to page!');
             } else {
               wb.currentTool = tool;
             }
@@ -402,7 +417,7 @@ class NotepadApp {
       dropzone.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-draw-diagram')) {
           e.stopPropagation();
-          this.docManager.updateSection(sec.id, { diagramMode: 'canvas' });
+          this.docManager.updateSection(sec.id, { diagramMode: 'canvas', canvasData: [] });
           this.renderNotebook();
           return;
         }
@@ -450,6 +465,104 @@ class NotepadApp {
   }
 
   // =========================================================================
+  // Find in Document & Select Text Engine
+  // =========================================================================
+  executeFind(direction = 1) {
+    const input = document.getElementById('find-input');
+    const countEl = document.getElementById('find-count');
+    if (!input) return;
+
+    const rawQuery = input.value;
+    if (!rawQuery || !rawQuery.trim()) {
+      this.findMatches = [];
+      this.findMatchIndex = -1;
+      this.findQuery = '';
+      if (countEl) countEl.textContent = '';
+      return;
+    }
+
+    const query = rawQuery.toLowerCase();
+    const activeDoc = this.docManager.getActiveDocument();
+    if (!activeDoc || !activeDoc.sections) return;
+
+    // If query changed or matches empty, search all note sections
+    if (this.findQuery !== query || this.findMatches.length === 0) {
+      this.findQuery = query;
+      this.findMatches = [];
+
+      activeDoc.sections.forEach(sec => {
+        if (sec.type === 'note' && sec.content) {
+          const text = sec.content.toLowerCase();
+          let startIndex = 0;
+          let foundPos;
+          while ((foundPos = text.indexOf(query, startIndex)) !== -1) {
+            this.findMatches.push({
+              sectionId: sec.id,
+              start: foundPos,
+              end: foundPos + query.length
+            });
+            startIndex = foundPos + query.length;
+          }
+        }
+      });
+
+      this.findMatchIndex = this.findMatches.length > 0 ? 0 : -1;
+    } else {
+      // Navigate next or prev
+      if (this.findMatches.length > 0) {
+        if (direction === 1) {
+          this.findMatchIndex = (this.findMatchIndex + 1) % this.findMatches.length;
+        } else if (direction === -1) {
+          this.findMatchIndex = (this.findMatchIndex - 1 + this.findMatches.length) % this.findMatches.length;
+        }
+      }
+    }
+
+    // Update UI counter
+    if (countEl) {
+      if (this.findMatches.length === 0) {
+        countEl.textContent = '0 of 0';
+        countEl.style.color = 'var(--accent-rose)';
+        return;
+      } else {
+        countEl.textContent = `${this.findMatchIndex + 1} of ${this.findMatches.length}`;
+        countEl.style.color = 'var(--text-muted)';
+      }
+    }
+
+    // Select the matching word in the document!
+    this.selectCurrentFindMatch();
+  }
+
+  selectCurrentFindMatch() {
+    if (this.findMatchIndex < 0 || this.findMatchIndex >= this.findMatches.length) return;
+    const match = this.findMatches[this.findMatchIndex];
+
+    const card = document.querySelector(`.notebook-section[data-id="${match.sectionId}"]`);
+    if (!card) return;
+
+    // Scroll section smoothly into view
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Activate textarea in this section so browser selection range works
+    const preview = card.querySelector('.note-preview');
+    const textarea = card.querySelector('.note-textarea');
+
+    if (preview && textarea) {
+      this.editingSectionId = match.sectionId;
+      preview.classList.add('hidden');
+      textarea.classList.remove('hidden');
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.max(48, textarea.scrollHeight) + 'px';
+      card.classList.add('active-focus');
+
+      // Focus and select the exact word/range!
+      textarea.focus();
+      textarea.setSelectionRange(match.start, match.end);
+    }
+  }
+
+  // =========================================================================
   // UI Event Bindings
   // =========================================================================
   bindEvents() {
@@ -471,12 +584,46 @@ class NotepadApp {
     document.getElementById('act-theme')?.addEventListener('click', () => this.toggleTheme());
 
     const findPanel = document.getElementById('find-replace-panel');
+    const findInput = document.getElementById('find-input');
+
+    const openFind = () => {
+      findPanel?.classList.remove('hidden');
+      if (findInput) {
+        findInput.focus();
+        findInput.select();
+        if (findInput.value) {
+          this.findQuery = '';
+          this.executeFind(0);
+        }
+      }
+    };
+
     document.getElementById('act-find')?.addEventListener('click', () => {
-      findPanel?.classList.toggle('hidden');
-      if (findPanel && !findPanel.classList.contains('hidden')) {
-        document.getElementById('find-input')?.focus();
+      if (findPanel?.classList.contains('hidden')) {
+        openFind();
+      } else {
+        findPanel?.classList.add('hidden');
       }
     });
+
+    // Find Input Events (Search as you type, Enter for Next, Shift+Enter for Prev)
+    findInput?.addEventListener('input', () => {
+      this.findQuery = '';
+      this.executeFind(0);
+    });
+
+    findInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.executeFind(e.shiftKey ? -1 : 1);
+      } else if (e.key === 'Escape') {
+        findPanel?.classList.add('hidden');
+      }
+    });
+
+    document.getElementById('btn-find-next')?.addEventListener('click', () => this.executeFind(1));
+    document.getElementById('btn-find-prev')?.addEventListener('click', () => this.executeFind(-1));
+    document.getElementById('btn-close-find')?.addEventListener('click', () => findPanel?.classList.add('hidden'));
 
     // Menus
     document.getElementById('menu-open-file')?.addEventListener('click', () => this.openFile());
@@ -484,6 +631,7 @@ class NotepadApp {
     document.getElementById('menu-save-as')?.addEventListener('click', () => this.saveCurrentFile(true));
     document.getElementById('menu-close-tab')?.addEventListener('click', () => this.closeTab(this.docManager.activeDocId));
     document.getElementById('menu-export-markdown')?.addEventListener('click', () => this.exportMarkdown());
+    document.getElementById('menu-find')?.addEventListener('click', () => openFind());
     document.getElementById('menu-insert-note')?.addEventListener('click', () => {
       this.docManager.addSection('note');
       this.renderNotebook();
@@ -553,15 +701,10 @@ class NotepadApp {
     docTitleEl?.addEventListener('blur', () => {
       const activeDoc = this.docManager.getActiveDocument();
       if (activeDoc) {
-        activeDoc.title = docTitleEl.textContent.trim() || 'Notes 1';
+        activeDoc.title = docTitleEl.textContent.trim() || 'quick-notes';
         this.docManager.saveSession();
         this.renderTabs();
       }
-    });
-
-    // Find panel buttons
-    document.getElementById('btn-close-find')?.addEventListener('click', () => {
-      findPanel?.classList.add('hidden');
     });
 
     // Theme toggle
@@ -596,6 +739,9 @@ class NotepadApp {
       } else if (isCmdOrCtrl && e.key.toLowerCase() === 'w') {
         e.preventDefault();
         this.closeTab(this.docManager.activeDocId);
+      } else if (isCmdOrCtrl && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        openFind();
       }
     });
 

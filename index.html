@@ -125,9 +125,10 @@
         <div id="find-replace-panel" class="find-replace-panel hidden">
           <div class="find-row">
             <input type="text" id="find-input" placeholder="Find in document..." />
-            <button id="btn-find-next" class="btn-sm">Next</button>
-            <button id="btn-find-prev" class="btn-sm">Previous</button>
-            <button id="btn-close-find" class="btn-close-find">✕</button>
+            <span id="find-count" class="find-count"></span>
+            <button id="btn-find-prev" class="btn-sm" title="Previous match (Shift+Enter)">▲</button>
+            <button id="btn-find-next" class="btn-sm" title="Next match (Enter)">▼</button>
+            <button id="btn-close-find" class="btn-close-find" title="Close (Escape)">✕</button>
           </div>
         </div>
 
@@ -135,7 +136,7 @@
         <main class="notepad-scroll-container">
           <div class="notepad-inner">
             <div class="notebook-document-header">
-              <h1 id="notebook-doc-title" class="notebook-title" contenteditable="true" spellcheck="false">Notes 1</h1>
+              <h1 id="notebook-doc-title" class="notebook-title" contenteditable="true" spellcheck="false">quick-notes</h1>
             </div>
 
             <!-- Seamless Sections Container -->
