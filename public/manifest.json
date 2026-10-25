@@ -1,0 +1,17 @@
+{
+  "name": "Notepad++ Cloud & Canvas",
+  "short_name": "Notepad++ Web",
+  "description": "Cross-platform Notepad++ with tabs, autosave, Google cloud sync, and live Mermaid & canvas diagrams.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e1e2e",
+  "theme_color": "#181825",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
