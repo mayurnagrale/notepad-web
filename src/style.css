@@ -93,22 +93,6 @@ html, body {
   gap: 12px;
 }
 
-.window-controls {
-  display: flex;
-  gap: 7px;
-  margin-right: 2px;
-}
-
-.control-dot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  transition: transform 0.15s ease;
-}
-.control-dot:hover { transform: scale(1.1); }
-.control-dot.close { background-color: #ff5f56; }
-.control-dot.minimize { background-color: #ffbd2e; }
-.control-dot.maximize { background-color: #27c93f; }
 
 .app-branding {
   display: flex;
