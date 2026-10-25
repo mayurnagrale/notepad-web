@@ -3,49 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notepad++ Cloud & Canvas | Notes & Diagram Notebook</title>
+  <title>Notepad++ | Notes & Diagram Notebook</title>
   <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#181825" />
-  <meta name="description" content="A clean, modern Notepad with Jupyter-style sections for notes and diagrams, featuring Monaco editor, live Mermaid diagrams, and whiteboard canvas." />
+  <meta name="description" content="Clean, seamless Notepad with Jupyter-style notes and canvas/image diagram blocks." />
   
   <!-- Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Google Identity Services for Gmail / Google Sign-in -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  
   <link rel="stylesheet" href="/src/style.css">
 </head>
 <body class="theme-dark">
   <div id="app" class="app-container">
-    <!-- Top Window Title / Menu Bar -->
+    <!-- Clean Minimalist Top Bar (Title & Menus) -->
     <header class="top-bar">
       <div class="window-controls">
         <span class="control-dot close"></span>
         <span class="control-dot minimize"></span>
         <span class="control-dot maximize"></span>
       </div>
+
       <div class="app-branding">
-        <img src="/icon.svg" alt="Notepad++ Cloud" class="app-logo" />
-        <span class="app-title">Notepad++ <span class="badge-edition">Notebook & Diagram</span></span>
+        <img src="/icon.svg" alt="Notepad++" class="app-logo" />
+        <span class="app-title">Notepad++</span>
       </div>
 
-      <!-- Menu Dropdowns -->
+      <!-- Compact Menus -->
       <nav class="menu-bar">
         <div class="menu-item" data-menu="file">
           <span>File</span>
           <div class="dropdown-menu">
-            <button id="menu-new-file"><span class="icon">📄</span> New Tab <span class="shortcut">Ctrl+N</span></button>
-            <button id="menu-open-file"><span class="icon">📂</span> Open Local File... <span class="shortcut">Ctrl+O</span></button>
-            <button id="menu-save-file"><span class="icon">💾</span> Save Document <span class="shortcut">Ctrl+S</span></button>
+            <button id="menu-open-file"><span class="icon">📂</span> Open File... <span class="shortcut">Ctrl+O</span></button>
+            <button id="menu-save-file"><span class="icon">💾</span> Save <span class="shortcut">Ctrl+S</span></button>
             <button id="menu-save-as"><span class="icon">📥</span> Save As... <span class="shortcut">Ctrl+Shift+S</span></button>
             <div class="menu-separator"></div>
             <button id="menu-export-markdown"><span class="icon">📝</span> Export as Markdown (.md)</button>
-            <button id="menu-export-html"><span class="icon">🌐</span> Export as HTML</button>
-            <div class="menu-separator"></div>
             <button id="menu-close-tab"><span class="icon">✕</span> Close Tab <span class="shortcut">Ctrl+W</span></button>
           </div>
         </div>
@@ -53,10 +48,8 @@
         <div class="menu-item" data-menu="insert">
           <span>Insert</span>
           <div class="dropdown-menu">
-            <button id="menu-insert-note"><span class="icon">📝</span> Insert Note Section</button>
-            <button id="menu-insert-diagram"><span class="icon">📊</span> Insert Diagram Section</button>
-            <div class="menu-separator"></div>
-            <button id="menu-open-studio"><span class="icon">🎨</span> Open Diagram Studio</button>
+            <button id="menu-insert-note"><span class="icon">📝</span> Add Note Section</button>
+            <button id="menu-insert-diagram"><span class="icon">📊</span> Add Diagram Section</button>
           </div>
         </div>
 
@@ -66,330 +59,133 @@
             <button id="menu-undo"><span class="icon">↩️</span> Undo <span class="shortcut">Ctrl+Z</span></button>
             <button id="menu-redo"><span class="icon">↪️</span> Redo <span class="shortcut">Ctrl+Y</span></button>
             <div class="menu-separator"></div>
-            <button id="menu-find"><span class="icon">🔍</span> Find in Document <span class="shortcut">Ctrl+F</span></button>
-          </div>
-        </div>
-
-        <div class="menu-item" data-menu="view">
-          <span>View</span>
-          <div class="dropdown-menu">
-            <button id="menu-toggle-view"><span class="icon">📓</span> Toggle Notebook / Raw Code View</button>
-            <button id="menu-toggle-studio"><span class="icon">🎨</span> Toggle Diagram Studio</button>
-            <div class="menu-separator"></div>
-            <button id="menu-toggle-wrap"><span class="icon">↩</span> Toggle Word Wrap</button>
-            <button id="menu-toggle-minimap"><span class="icon">🗺️</span> Toggle Minimap</button>
-          </div>
-        </div>
-
-        <div class="menu-item" data-menu="cloud">
-          <span>Cloud & Sync</span>
-          <div class="dropdown-menu">
-            <button id="menu-google-sync"><span class="icon">☁️</span> Google Account Sync Settings</button>
-            <button id="menu-manual-cloud-backup"><span class="icon">🔄</span> Force Cloud Sync Now</button>
+            <button id="menu-find"><span class="icon">🔍</span> Find <span class="shortcut">Ctrl+F</span></button>
           </div>
         </div>
       </nav>
 
-      <!-- Right Header Actions -->
+      <!-- Clean Top-Right Actions -->
       <div class="top-actions">
-        <!-- Google Account Button -->
-        <button id="btn-google-auth" class="btn-google" title="Sync with Google Account">
-          <svg class="google-icon" viewBox="0 0 24 24" width="16" height="16">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-          </svg>
-          <span id="google-auth-text">Sign in with Google</span>
-          <img id="google-user-avatar" class="user-avatar hidden" src="" alt="Avatar" />
-        </button>
-
-        <button id="btn-theme-toggle" class="btn-icon" title="Toggle Theme (Dark/Light)">
+        <span id="autosave-indicator" class="autosave-badge saved">● Saved</span>
+        <button id="btn-theme-toggle" class="btn-icon" title="Toggle Dark/Light Mode">
           <span class="theme-icon">🌙</span>
+        </button>
+        <button id="btn-google-auth" class="btn-icon" title="Cloud Sync">
+          <span>☁️</span>
         </button>
       </div>
     </header>
 
-    <!-- Quick Action Toolbar -->
-    <div class="toolbar">
-      <div class="toolbar-group">
-        <button id="tb-new" class="tool-btn" title="New Document (Ctrl+N)">📄 New</button>
-        <button id="tb-open" class="tool-btn" title="Open File (Ctrl+O)">📂 Open</button>
-        <button id="tb-save" class="tool-btn" title="Save File (Ctrl+S)">💾 Save</button>
-        <input type="file" id="file-input" style="display: none;" />
-      </div>
-      <div class="toolbar-divider"></div>
-      
-      <!-- Notebook Section Insertion Buttons -->
-      <div class="toolbar-group">
-        <button id="tb-add-note" class="tool-btn primary" title="Add Note Section">
-          📝 + Note
-        </button>
-        <button id="tb-add-diagram" class="tool-btn primary" title="Add Diagram Section">
-          📊 + Diagram
-        </button>
-      </div>
-      <div class="toolbar-divider"></div>
-
-      <!-- Diagram Studio Toggle -->
-      <div class="toolbar-group">
-        <button id="tb-open-studio" class="tool-btn studio-btn" title="Open Diagram Designer Studio">
-          🎨 Diagram Studio
-        </button>
-        <button id="tb-toggle-view" class="tool-btn" title="Toggle between Notebook Sections and Raw Code">
-          📓 Notebook Mode
-        </button>
-      </div>
-      <div class="toolbar-divider"></div>
-
-      <div class="toolbar-group">
-        <button id="tb-undo" class="tool-btn" title="Undo (Ctrl+Z)">↩️</button>
-        <button id="tb-redo" class="tool-btn" title="Redo (Ctrl+Y)">↪️</button>
-        <button id="tb-find" class="tool-btn" title="Find (Ctrl+F)">🔍 Find</button>
-      </div>
-      <div class="toolbar-divider"></div>
-
-      <div class="toolbar-group auto-save-group">
-        <label class="toggle-switch">
-          <input type="checkbox" id="chk-autosave" checked>
-          <span class="slider"></span>
-        </label>
-        <span class="toggle-label">Auto-save</span>
-        <span id="autosave-indicator" class="autosave-badge saved">● Saved</span>
-      </div>
-    </div>
-
-    <!-- Document Tabs Bar (Notepad++ Classic style) -->
-    <div class="tabs-container">
-      <div id="tabs-list" class="tabs-list">
-        <!-- Rendered dynamically -->
-      </div>
-      <button id="btn-add-tab" class="btn-add-tab" title="New Document (Ctrl+N)">+</button>
-    </div>
-
-    <!-- Search & Replace Bar (Collapsible Ctrl+F panel) -->
-    <div id="find-replace-panel" class="find-replace-panel hidden">
-      <div class="find-row">
-        <input type="text" id="find-input" placeholder="Find in document..." />
-        <button id="btn-find-next" class="btn-sm">Next</button>
-        <button id="btn-find-prev" class="btn-sm">Previous</button>
-        <button id="btn-close-find" class="btn-close-find">✕</button>
-      </div>
-    </div>
-
-    <!-- Main Workspace Area -->
-    <main class="workspace-container">
-      <!-- Clean Notepad Notebook View (Default: Full-Width distraction-free notepad with sections) -->
-      <section id="notebook-workspace" class="workspace-pane notebook-workspace">
-        <div class="notebook-inner">
-          <div class="notebook-document-header">
-            <h1 id="notebook-doc-title" class="notebook-title" contenteditable="true" spellcheck="false">new 1.txt</h1>
-            <div class="notebook-meta">
-              <span id="notebook-section-count">1 Section</span>
-              <span class="meta-dot">•</span>
-              <span>Jupyter-style Notes & Diagrams</span>
-            </div>
-          </div>
-
-          <!-- Drag and Drop Drop-zone & Section Container -->
-          <div id="sections-container" class="sections-container">
-            <!-- Rendered dynamically -->
-          </div>
-
-          <!-- Bottom Add-Section Bar -->
-          <div class="notebook-bottom-actions">
-            <button id="btn-bottom-add-note" class="btn-add-section">
-              <span class="icon">📝</span> Add Note Section
-            </button>
-            <button id="btn-bottom-add-diagram" class="btn-add-section">
-              <span class="icon">📊</span> Add Diagram Section
-            </button>
-            <button id="btn-bottom-open-studio" class="btn-add-section studio-accent">
-              <span class="icon">🎨</span> Design Diagram in Studio
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Raw Code / Monaco Editor View (Optional mode for traditional single file editing) -->
-      <section id="raw-workspace" class="workspace-pane raw-workspace hidden">
-        <div id="monaco-editor" class="editor-surface"></div>
-      </section>
-
-      <!-- Separate Diagram Designer Studio Drawer (Slide-out on demand) -->
-      <aside id="diagram-studio" class="diagram-studio-drawer hidden">
-        <div class="studio-header">
-          <div class="studio-title-group">
-            <span class="studio-icon">🎨</span>
-            <div>
-              <h3>Diagram Studio</h3>
-              <p class="studio-subtitle">Design diagrams & drag them into your notes</p>
-            </div>
-          </div>
-          <button id="btn-close-studio" class="btn-close-studio" title="Close Diagram Studio">✕</button>
-        </div>
-
-        <!-- Draggable Diagram Badge & Instant Insertion -->
-        <div class="studio-drag-bar">
-          <div id="studio-drag-handle" class="draggable-diagram-card" draggable="true" title="Drag this diagram card directly into your Notepad!">
-            <span class="drag-icon">⠿</span>
-            <span class="drag-label"><strong>Drag Diagram into Notepad</strong> (or click Insert)</span>
-          </div>
-          <button id="btn-insert-studio-diagram" class="btn-studio-insert" title="Insert this diagram into the active document">
-            📥 Insert Section
+    <!-- Main Workspace Layout with Vertical Activity Bar -->
+    <div class="main-body-layout">
+      <!-- Vertical Activity Bar (VS Code / Antigravity IDE style) -->
+      <aside class="activity-bar">
+        <div class="activity-group top">
+          <button id="act-add-note" class="activity-btn" title="Add Note Section">
+            <span class="act-icon">📝</span>
+            <span class="act-label">+ Note</span>
+          </button>
+          <button id="act-add-diagram" class="activity-btn" title="Add Diagram / Image Section">
+            <span class="act-icon">📊</span>
+            <span class="act-label">+ Diagram</span>
+          </button>
+          <div class="activity-divider"></div>
+          <button id="act-open" class="activity-btn" title="Open File (Ctrl+O)">
+            <span class="act-icon">📂</span>
+            <span class="act-label">Open</span>
+          </button>
+          <button id="act-save" class="activity-btn" title="Save Document (Ctrl+S)">
+            <span class="act-icon">💾</span>
+            <span class="act-label">Save</span>
+          </button>
+          <button id="act-find" class="activity-btn" title="Find in Document (Ctrl+F)">
+            <span class="act-icon">🔍</span>
+            <span class="act-label">Find</span>
           </button>
         </div>
 
-        <!-- Studio Mode Tabs -->
-        <div class="studio-tabs">
-          <button id="tab-studio-mermaid" class="studio-tab active">📊 Mermaid Code</button>
-          <button id="tab-studio-canvas" class="studio-tab">🎨 Whiteboard Canvas</button>
-        </div>
-
-        <!-- Studio Panel 1: Mermaid Code & Live Preview -->
-        <div id="studio-panel-mermaid" class="studio-panel">
-          <div class="studio-controls-row">
-            <label class="studio-label">Template:
-              <select id="select-diagram-template" class="select-sm">
-                <option value="flowchart">Flowchart</option>
-                <option value="sequence">Sequence Diagram</option>
-                <option value="architecture">Cloud Architecture</option>
-                <option value="classDiagram">Class Diagram</option>
-                <option value="er">Database ER Diagram</option>
-                <option value="mindmap">Mindmap</option>
-              </select>
-            </label>
-            <button id="btn-apply-template" class="btn-sm">Insert Template</button>
-          </div>
-
-          <div class="studio-editor-box">
-            <div class="studio-section-label">Mermaid Code:</div>
-            <textarea id="studio-mermaid-input" class="studio-textarea" spellcheck="false"></textarea>
-          </div>
-
-          <div class="studio-preview-box">
-            <div class="studio-preview-header">
-              <span class="studio-section-label">Live Preview:</span>
-              <div class="preview-actions">
-                <button id="btn-studio-zoom-in" class="btn-icon-sm" title="Zoom In">➕</button>
-                <button id="btn-studio-zoom-out" class="btn-icon-sm" title="Zoom Out">➖</button>
-                <button id="btn-studio-zoom-reset" class="btn-icon-sm" title="Reset Zoom">🔄</button>
-                <button id="btn-studio-export-png" class="btn-sm" title="Export PNG">PNG 📥</button>
-                <button id="btn-studio-export-svg" class="btn-sm" title="Export SVG">SVG 📥</button>
-              </div>
-            </div>
-            <div id="studio-diagram-preview" class="studio-diagram-render-area"></div>
-          </div>
-        </div>
-
-        <!-- Studio Panel 2: Interactive Whiteboard Canvas -->
-        <div id="studio-panel-canvas" class="studio-panel hidden">
-          <div class="canvas-toolbar">
-            <div class="canvas-tool-group">
-              <button class="canvas-tool active" data-tool="select" title="Select / Move">👆</button>
-              <button class="canvas-tool" data-tool="rect" title="Rectangle">▭</button>
-              <button class="canvas-tool" data-tool="diamond" title="Diamond (Decision)">◇</button>
-              <button class="canvas-tool" data-tool="circle" title="Circle">◯</button>
-              <button class="canvas-tool" data-tool="arrow" title="Arrow">➔</button>
-              <button class="canvas-tool" data-tool="line" title="Line">―</button>
-              <button class="canvas-tool" data-tool="freehand" title="Pen">✏️</button>
-              <button class="canvas-tool" data-tool="text" title="Text">T</button>
-            </div>
-            <div class="canvas-divider"></div>
-            <div class="canvas-tool-group">
-              <label class="color-picker-label">Color: <input type="color" id="canvas-color-picker" value="#38bdf8"></label>
-              <label class="color-picker-label">Fill: <input type="color" id="canvas-fill-picker" value="#1e293b"></label>
-              <select id="canvas-stroke-width" class="select-sm">
-                <option value="2">2px</option>
-                <option value="3" selected>3px</option>
-                <option value="5">5px</option>
-              </select>
-            </div>
-            <div class="canvas-divider"></div>
-            <div class="canvas-tool-group">
-              <button id="btn-canvas-undo" class="btn-sm">↩ Undo</button>
-              <button id="btn-canvas-clear" class="btn-sm danger">🗑 Clear</button>
-              <button id="btn-canvas-export" class="btn-sm">Export PNG</button>
-            </div>
-          </div>
-          <div class="canvas-viewport studio-canvas-viewport">
-            <canvas id="whiteboard-canvas"></canvas>
-          </div>
+        <div class="activity-group bottom">
+          <button id="act-theme" class="activity-btn" title="Toggle Theme">
+            <span class="act-icon">🌓</span>
+          </button>
         </div>
       </aside>
-    </main>
 
-    <!-- Bottom Status Bar (Notepad++ Classic information bar) -->
+      <!-- Right Content Workspace -->
+      <div class="workspace-area">
+        <!-- Flush, Seamless Tabs Container -->
+        <div class="tabs-container">
+          <div id="tabs-list" class="tabs-list">
+            <!-- Rendered dynamically -->
+          </div>
+          <button id="btn-add-tab" class="btn-add-tab" title="New Tab (Ctrl+N)">+</button>
+        </div>
+
+        <!-- Search Bar (Ctrl+F) -->
+        <div id="find-replace-panel" class="find-replace-panel hidden">
+          <div class="find-row">
+            <input type="text" id="find-input" placeholder="Find in document..." />
+            <button id="btn-find-next" class="btn-sm">Next</button>
+            <button id="btn-find-prev" class="btn-sm">Previous</button>
+            <button id="btn-close-find" class="btn-close-find">✕</button>
+          </div>
+        </div>
+
+        <!-- Seamless Notepad Document Area -->
+        <main class="notepad-scroll-container">
+          <div class="notepad-inner">
+            <div class="notebook-document-header">
+              <h1 id="notebook-doc-title" class="notebook-title" contenteditable="true" spellcheck="false">Notes 1</h1>
+            </div>
+
+            <!-- Seamless Sections Container -->
+            <div id="sections-container" class="sections-container">
+              <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Bottom Seamless Add Section Buttons -->
+            <div class="notebook-bottom-actions">
+              <button id="btn-bottom-add-note" class="btn-seamless-add">
+                <span class="icon">📝</span> + Note Section
+              </button>
+              <button id="btn-bottom-add-diagram" class="btn-seamless-add">
+                <span class="icon">📊</span> + Diagram / Canvas Section
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
     <footer class="status-bar">
       <div class="status-left">
         <span id="status-cursor" class="status-item">Ln 1, Col 1</span>
         <span id="status-sections" class="status-item">Sections: 1</span>
         <span id="status-length" class="status-item">Length: 0</span>
-        <span id="status-filesize" class="status-item">0 bytes</span>
       </div>
       <div class="status-right">
-        <span id="status-cloud-sync" class="status-item sync-status">
-          <span class="sync-dot"></span> <span id="status-sync-text">Local Storage</span>
-        </span>
-        <div class="status-item language-select-item">
-          <select id="select-language" class="language-dropdown">
-            <option value="markdown">Markdown Notes (.md)</option>
-            <option value="plaintext">Normal Text (.txt)</option>
-            <option value="mermaid">Mermaid Diagram (.mmd)</option>
-            <option value="javascript">JavaScript (.js)</option>
-            <option value="typescript">TypeScript (.ts)</option>
-            <option value="python">Python (.py)</option>
-            <option value="html">HTML (.html)</option>
-            <option value="json">JSON (.json)</option>
-            <option value="sql">SQL (.sql)</option>
-          </select>
-        </div>
         <span class="status-item">UTF-8</span>
         <span class="status-item">Windows (CR LF)</span>
       </div>
     </footer>
 
-    <!-- Google Sign-In & Cloud Sync Modal -->
+    <!-- Hidden file inputs -->
+    <input type="file" id="file-input" style="display: none;" />
+    <input type="file" id="diagram-image-input" accept="image/*,.svg" style="display: none;" />
+
+    <!-- Google Cloud Sync Modal -->
     <div id="modal-cloud-sync" class="modal-backdrop hidden">
       <div class="modal-box">
         <div class="modal-header">
-          <h3>☁️ Google Cloud Account & File Sync</h3>
+          <h3>☁️ Google Cloud Sync</h3>
           <button id="btn-close-modal" class="modal-close">✕</button>
         </div>
         <div class="modal-body">
-          <div id="google-signed-out-view">
-            <p>Connect your Google account to access your notes, tabs, and diagrams on <strong>macOS, Windows, iPad, or any browser</strong> instantly.</p>
-            <div class="g-signin-container">
-              <button id="btn-mock-google-login" class="btn-google-large">
-                <svg viewBox="0 0 24 24" width="20" height="20">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                </svg>
-                Continue with Google Account
-              </button>
-            </div>
-            <p class="hint-text">Your files are encrypted and synchronized safely using your account identity.</p>
-          </div>
-
-          <div id="google-signed-in-view" class="hidden">
-            <div class="user-profile-card">
-              <img id="profile-img" src="" alt="Profile" class="profile-pic" />
-              <div class="profile-info">
-                <div id="profile-name" class="profile-name">User Name</div>
-                <div id="profile-email" class="profile-email">user@gmail.com</div>
-                <span class="badge-synced">✓ Cloud Connected</span>
-              </div>
-            </div>
-            <div class="sync-actions">
-              <button id="btn-sync-now" class="btn-primary">Sync Files Now</button>
-              <button id="btn-google-signout" class="btn-secondary">Sign Out</button>
-            </div>
-            <div class="cloud-file-list">
-              <h4>Synced Cloud Documents:</h4>
-              <ul id="cloud-docs-list"></ul>
-            </div>
+          <p>Your notes and tabs are automatically backed up to your local storage and can be synced across browsers.</p>
+          <div class="sync-actions" style="margin-top: 16px;">
+            <button id="btn-sync-now" class="btn-primary">Force Backup Now</button>
+            <button id="btn-mock-google-login" class="btn-secondary">Link Google Account</button>
           </div>
         </div>
       </div>
