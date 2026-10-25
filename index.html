@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notepad++ Cloud & Canvas | Cross-Platform Code & Diagram Editor</title>
+  <title>Notepad++ Cloud & Canvas | Notes & Diagram Notebook</title>
   <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#181825" />
-  <meta name="description" content="Notepad++ reimagined for macOS, Windows and Web: tabs, autosave, Google cloud sync, Monaco editor, and live Mermaid & canvas diagrams." />
+  <meta name="description" content="A clean, modern Notepad with Jupyter-style sections for notes and diagrams, featuring Monaco editor, live Mermaid diagrams, and whiteboard canvas." />
   
   <!-- Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +30,7 @@
       </div>
       <div class="app-branding">
         <img src="/icon.svg" alt="Notepad++ Cloud" class="app-logo" />
-        <span class="app-title">Notepad++ <span class="badge-edition">Cloud & Canvas</span></span>
+        <span class="app-title">Notepad++ <span class="badge-edition">Notebook & Diagram</span></span>
       </div>
 
       <!-- Menu Dropdowns -->
@@ -40,13 +40,23 @@
           <div class="dropdown-menu">
             <button id="menu-new-file"><span class="icon">📄</span> New Tab <span class="shortcut">Ctrl+N</span></button>
             <button id="menu-open-file"><span class="icon">📂</span> Open Local File... <span class="shortcut">Ctrl+O</span></button>
-            <button id="menu-save-file"><span class="icon">💾</span> Save <span class="shortcut">Ctrl+S</span></button>
+            <button id="menu-save-file"><span class="icon">💾</span> Save Document <span class="shortcut">Ctrl+S</span></button>
             <button id="menu-save-as"><span class="icon">📥</span> Save As... <span class="shortcut">Ctrl+Shift+S</span></button>
             <div class="menu-separator"></div>
-            <button id="menu-export-diagram"><span class="icon">🖼️</span> Export Diagram (SVG / PNG)</button>
-            <button id="menu-export-html"><span class="icon">🌐</span> Export to HTML</button>
+            <button id="menu-export-markdown"><span class="icon">📝</span> Export as Markdown (.md)</button>
+            <button id="menu-export-html"><span class="icon">🌐</span> Export as HTML</button>
             <div class="menu-separator"></div>
-            <button id="menu-close-tab"><span class="icon">✕</span> Close Current Tab <span class="shortcut">Ctrl+W</span></button>
+            <button id="menu-close-tab"><span class="icon">✕</span> Close Tab <span class="shortcut">Ctrl+W</span></button>
+          </div>
+        </div>
+
+        <div class="menu-item" data-menu="insert">
+          <span>Insert</span>
+          <div class="dropdown-menu">
+            <button id="menu-insert-note"><span class="icon">📝</span> Insert Note Section</button>
+            <button id="menu-insert-diagram"><span class="icon">📊</span> Insert Diagram Section</button>
+            <div class="menu-separator"></div>
+            <button id="menu-open-studio"><span class="icon">🎨</span> Open Diagram Studio</button>
           </div>
         </div>
 
@@ -56,35 +66,18 @@
             <button id="menu-undo"><span class="icon">↩️</span> Undo <span class="shortcut">Ctrl+Z</span></button>
             <button id="menu-redo"><span class="icon">↪️</span> Redo <span class="shortcut">Ctrl+Y</span></button>
             <div class="menu-separator"></div>
-            <button id="menu-find"><span class="icon">🔍</span> Find & Replace <span class="shortcut">Ctrl+F</span></button>
-            <button id="menu-format"><span class="icon">✨</span> Format Code <span class="shortcut">Shift+Alt+F</span></button>
-          </div>
-        </div>
-
-        <div class="menu-item" data-menu="diagram">
-          <span>Diagram</span>
-          <div class="dropdown-menu">
-            <button id="menu-template-flowchart"><span class="icon">🔀</span> Insert Flowchart</button>
-            <button id="menu-template-sequence"><span class="icon">👥</span> Insert Sequence Diagram</button>
-            <button id="menu-template-architecture"><span class="icon">🏗️</span> Insert Cloud Architecture</button>
-            <button id="menu-template-class"><span class="icon">📦</span> Insert Class Diagram</button>
-            <button id="menu-template-er"><span class="icon">🗄️</span> Insert Database ER Diagram</button>
-            <button id="menu-template-mindmap"><span class="icon">🧠</span> Insert Mindmap</button>
-            <div class="menu-separator"></div>
-            <button id="menu-open-canvas"><span class="icon">🎨</span> Open Visual Whiteboard Canvas</button>
+            <button id="menu-find"><span class="icon">🔍</span> Find in Document <span class="shortcut">Ctrl+F</span></button>
           </div>
         </div>
 
         <div class="menu-item" data-menu="view">
           <span>View</span>
           <div class="dropdown-menu">
-            <button id="menu-toggle-split"><span class="icon">◫</span> Toggle Diagram Split View</button>
+            <button id="menu-toggle-view"><span class="icon">📓</span> Toggle Notebook / Raw Code View</button>
+            <button id="menu-toggle-studio"><span class="icon">🎨</span> Toggle Diagram Studio</button>
+            <div class="menu-separator"></div>
             <button id="menu-toggle-wrap"><span class="icon">↩</span> Toggle Word Wrap</button>
             <button id="menu-toggle-minimap"><span class="icon">🗺️</span> Toggle Minimap</button>
-            <div class="menu-separator"></div>
-            <button id="menu-zoom-in"><span class="icon">🔍+</span> Zoom In <span class="shortcut">Ctrl++</span></button>
-            <button id="menu-zoom-out"><span class="icon">🔍-</span> Zoom Out <span class="shortcut">Ctrl+-</span></button>
-            <button id="menu-zoom-reset">Reset Zoom</button>
           </div>
         </div>
 
@@ -120,27 +113,42 @@
     <!-- Quick Action Toolbar -->
     <div class="toolbar">
       <div class="toolbar-group">
-        <button id="tb-new" class="tool-btn" title="New Tab (Ctrl+N)">📄 New</button>
+        <button id="tb-new" class="tool-btn" title="New Document (Ctrl+N)">📄 New</button>
         <button id="tb-open" class="tool-btn" title="Open File (Ctrl+O)">📂 Open</button>
         <button id="tb-save" class="tool-btn" title="Save File (Ctrl+S)">💾 Save</button>
         <input type="file" id="file-input" style="display: none;" />
       </div>
       <div class="toolbar-divider"></div>
+      
+      <!-- Notebook Section Insertion Buttons -->
+      <div class="toolbar-group">
+        <button id="tb-add-note" class="tool-btn primary" title="Add Note Section">
+          📝 + Note
+        </button>
+        <button id="tb-add-diagram" class="tool-btn primary" title="Add Diagram Section">
+          📊 + Diagram
+        </button>
+      </div>
+      <div class="toolbar-divider"></div>
+
+      <!-- Diagram Studio Toggle -->
+      <div class="toolbar-group">
+        <button id="tb-open-studio" class="tool-btn studio-btn" title="Open Diagram Designer Studio">
+          🎨 Diagram Studio
+        </button>
+        <button id="tb-toggle-view" class="tool-btn" title="Toggle between Notebook Sections and Raw Code">
+          📓 Notebook Mode
+        </button>
+      </div>
+      <div class="toolbar-divider"></div>
+
       <div class="toolbar-group">
         <button id="tb-undo" class="tool-btn" title="Undo (Ctrl+Z)">↩️</button>
         <button id="tb-redo" class="tool-btn" title="Redo (Ctrl+Y)">↪️</button>
-        <button id="tb-find" class="tool-btn" title="Find & Replace (Ctrl+F)">🔍 Find</button>
+        <button id="tb-find" class="tool-btn" title="Find (Ctrl+F)">🔍 Find</button>
       </div>
       <div class="toolbar-divider"></div>
-      <div class="toolbar-group">
-        <button id="tb-toggle-split" class="tool-btn active-state" title="Toggle Live Diagram & Markdown Preview">
-          ◫ Diagram Split
-        </button>
-        <button id="tb-toggle-canvas" class="tool-btn" title="Open Interactive Visual Whiteboard">
-          🎨 Whiteboard Canvas
-        </button>
-      </div>
-      <div class="toolbar-divider"></div>
+
       <div class="toolbar-group auto-save-group">
         <label class="toggle-switch">
           <input type="checkbox" id="chk-autosave" checked>
@@ -148,12 +156,6 @@
         </label>
         <span class="toggle-label">Auto-save</span>
         <span id="autosave-indicator" class="autosave-badge saved">● Saved</span>
-      </div>
-      <div class="toolbar-spacer"></div>
-      <div class="toolbar-group">
-        <button id="tb-template-menu" class="tool-btn primary" title="Quick Diagram Templates">
-          ⚡ Diagram Templates ▾
-        </button>
       </div>
     </div>
 
@@ -168,93 +170,160 @@
     <!-- Search & Replace Bar (Collapsible Ctrl+F panel) -->
     <div id="find-replace-panel" class="find-replace-panel hidden">
       <div class="find-row">
-        <input type="text" id="find-input" placeholder="Find..." />
+        <input type="text" id="find-input" placeholder="Find in document..." />
         <button id="btn-find-next" class="btn-sm">Next</button>
         <button id="btn-find-prev" class="btn-sm">Previous</button>
-        <label><input type="checkbox" id="chk-match-case"> Match Case</label>
-        <label><input type="checkbox" id="chk-regex"> Regex</label>
         <button id="btn-close-find" class="btn-close-find">✕</button>
-      </div>
-      <div class="replace-row">
-        <input type="text" id="replace-input" placeholder="Replace with..." />
-        <button id="btn-replace" class="btn-sm">Replace</button>
-        <button id="btn-replace-all" class="btn-sm">Replace All</button>
       </div>
     </div>
 
-    <!-- Main Workspace Split Container -->
+    <!-- Main Workspace Area -->
     <main class="workspace-container">
-      <!-- Left Pane: Monaco Code & Text Editor -->
-      <section id="editor-pane" class="workspace-pane editor-pane">
+      <!-- Clean Notepad Notebook View (Default: Full-Width distraction-free notepad with sections) -->
+      <section id="notebook-workspace" class="workspace-pane notebook-workspace">
+        <div class="notebook-inner">
+          <div class="notebook-document-header">
+            <h1 id="notebook-doc-title" class="notebook-title" contenteditable="true" spellcheck="false">new 1.txt</h1>
+            <div class="notebook-meta">
+              <span id="notebook-section-count">1 Section</span>
+              <span class="meta-dot">•</span>
+              <span>Jupyter-style Notes & Diagrams</span>
+            </div>
+          </div>
+
+          <!-- Drag and Drop Drop-zone & Section Container -->
+          <div id="sections-container" class="sections-container">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- Bottom Add-Section Bar -->
+          <div class="notebook-bottom-actions">
+            <button id="btn-bottom-add-note" class="btn-add-section">
+              <span class="icon">📝</span> Add Note Section
+            </button>
+            <button id="btn-bottom-add-diagram" class="btn-add-section">
+              <span class="icon">📊</span> Add Diagram Section
+            </button>
+            <button id="btn-bottom-open-studio" class="btn-add-section studio-accent">
+              <span class="icon">🎨</span> Design Diagram in Studio
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Raw Code / Monaco Editor View (Optional mode for traditional single file editing) -->
+      <section id="raw-workspace" class="workspace-pane raw-workspace hidden">
         <div id="monaco-editor" class="editor-surface"></div>
       </section>
 
-      <!-- Right Pane: Live Mermaid Diagram & Markdown Split Viewer -->
-      <section id="preview-pane" class="workspace-pane preview-pane">
-        <div class="preview-header">
-          <div class="preview-tabs">
-            <button id="tab-diagram-view" class="preview-tab active">Mermaid Diagram</button>
-            <button id="tab-markdown-view" class="preview-tab">Rich Markdown</button>
+      <!-- Separate Diagram Designer Studio Drawer (Slide-out on demand) -->
+      <aside id="diagram-studio" class="diagram-studio-drawer hidden">
+        <div class="studio-header">
+          <div class="studio-title-group">
+            <span class="studio-icon">🎨</span>
+            <div>
+              <h3>Diagram Studio</h3>
+              <p class="studio-subtitle">Design diagrams & drag them into your notes</p>
+            </div>
           </div>
-          <div class="preview-actions">
-            <button id="btn-zoom-in" class="btn-icon-sm" title="Zoom In">➕</button>
-            <button id="btn-zoom-out" class="btn-icon-sm" title="Zoom Out">➖</button>
-            <button id="btn-zoom-reset" class="btn-icon-sm" title="Reset Zoom">🔄</button>
-            <button id="btn-export-svg" class="btn-icon-sm primary" title="Export Diagram as SVG">SVG 📥</button>
-            <button id="btn-export-png" class="btn-icon-sm primary" title="Export Diagram as PNG">PNG 📥</button>
-          </div>
+          <button id="btn-close-studio" class="btn-close-studio" title="Close Diagram Studio">✕</button>
         </div>
-        <div id="preview-content" class="preview-content">
-          <div id="diagram-render-area" class="diagram-render-area"></div>
-          <div id="markdown-render-area" class="markdown-render-area hidden"></div>
-        </div>
-      </section>
 
-      <!-- Interactive Whiteboard Canvas Overlay / Dedicated Tab View -->
-      <section id="canvas-pane" class="workspace-pane canvas-pane hidden">
-        <div class="canvas-toolbar">
-          <div class="canvas-tool-group">
-            <button class="canvas-tool active" data-tool="select" title="Select / Move">👆</button>
-            <button class="canvas-tool" data-tool="rect" title="Rectangle">▭</button>
-            <button class="canvas-tool" data-tool="diamond" title="Diamond (Decision)">◇</button>
-            <button class="canvas-tool" data-tool="circle" title="Circle / Node">◯</button>
-            <button class="canvas-tool" data-tool="arrow" title="Connecting Arrow">➔</button>
-            <button class="canvas-tool" data-tool="line" title="Straight Line">―</button>
-            <button class="canvas-tool" data-tool="freehand" title="Freehand Pen">✏️</button>
-            <button class="canvas-tool" data-tool="text" title="Text Label">T</button>
+        <!-- Draggable Diagram Badge & Instant Insertion -->
+        <div class="studio-drag-bar">
+          <div id="studio-drag-handle" class="draggable-diagram-card" draggable="true" title="Drag this diagram card directly into your Notepad!">
+            <span class="drag-icon">⠿</span>
+            <span class="drag-label"><strong>Drag Diagram into Notepad</strong> (or click Insert)</span>
           </div>
-          <div class="canvas-divider"></div>
-          <div class="canvas-tool-group">
-            <label class="color-picker-label" title="Shape / Stroke Color">
-              Color: <input type="color" id="canvas-color-picker" value="#38bdf8">
+          <button id="btn-insert-studio-diagram" class="btn-studio-insert" title="Insert this diagram into the active document">
+            📥 Insert Section
+          </button>
+        </div>
+
+        <!-- Studio Mode Tabs -->
+        <div class="studio-tabs">
+          <button id="tab-studio-mermaid" class="studio-tab active">📊 Mermaid Code</button>
+          <button id="tab-studio-canvas" class="studio-tab">🎨 Whiteboard Canvas</button>
+        </div>
+
+        <!-- Studio Panel 1: Mermaid Code & Live Preview -->
+        <div id="studio-panel-mermaid" class="studio-panel">
+          <div class="studio-controls-row">
+            <label class="studio-label">Template:
+              <select id="select-diagram-template" class="select-sm">
+                <option value="flowchart">Flowchart</option>
+                <option value="sequence">Sequence Diagram</option>
+                <option value="architecture">Cloud Architecture</option>
+                <option value="classDiagram">Class Diagram</option>
+                <option value="er">Database ER Diagram</option>
+                <option value="mindmap">Mindmap</option>
+              </select>
             </label>
-            <label class="color-picker-label" title="Fill Color">
-              Fill: <input type="color" id="canvas-fill-picker" value="#1e293b">
-            </label>
-            <select id="canvas-stroke-width" class="select-sm" title="Stroke Width">
-              <option value="2">2px</option>
-              <option value="3" selected>3px</option>
-              <option value="5">5px</option>
-            </select>
+            <button id="btn-apply-template" class="btn-sm">Insert Template</button>
           </div>
-          <div class="canvas-divider"></div>
-          <div class="canvas-tool-group">
-            <button id="btn-canvas-undo" class="btn-sm" title="Undo Canvas Action">↩ Undo</button>
-            <button id="btn-canvas-clear" class="btn-sm danger" title="Clear Canvas">🗑 Clear</button>
-            <button id="btn-canvas-export" class="btn-sm primary" title="Export Canvas as PNG">📥 Export Image</button>
+
+          <div class="studio-editor-box">
+            <div class="studio-section-label">Mermaid Code:</div>
+            <textarea id="studio-mermaid-input" class="studio-textarea" spellcheck="false"></textarea>
+          </div>
+
+          <div class="studio-preview-box">
+            <div class="studio-preview-header">
+              <span class="studio-section-label">Live Preview:</span>
+              <div class="preview-actions">
+                <button id="btn-studio-zoom-in" class="btn-icon-sm" title="Zoom In">➕</button>
+                <button id="btn-studio-zoom-out" class="btn-icon-sm" title="Zoom Out">➖</button>
+                <button id="btn-studio-zoom-reset" class="btn-icon-sm" title="Reset Zoom">🔄</button>
+                <button id="btn-studio-export-png" class="btn-sm" title="Export PNG">PNG 📥</button>
+                <button id="btn-studio-export-svg" class="btn-sm" title="Export SVG">SVG 📥</button>
+              </div>
+            </div>
+            <div id="studio-diagram-preview" class="studio-diagram-render-area"></div>
           </div>
         </div>
-        <div class="canvas-viewport">
-          <canvas id="whiteboard-canvas"></canvas>
+
+        <!-- Studio Panel 2: Interactive Whiteboard Canvas -->
+        <div id="studio-panel-canvas" class="studio-panel hidden">
+          <div class="canvas-toolbar">
+            <div class="canvas-tool-group">
+              <button class="canvas-tool active" data-tool="select" title="Select / Move">👆</button>
+              <button class="canvas-tool" data-tool="rect" title="Rectangle">▭</button>
+              <button class="canvas-tool" data-tool="diamond" title="Diamond (Decision)">◇</button>
+              <button class="canvas-tool" data-tool="circle" title="Circle">◯</button>
+              <button class="canvas-tool" data-tool="arrow" title="Arrow">➔</button>
+              <button class="canvas-tool" data-tool="line" title="Line">―</button>
+              <button class="canvas-tool" data-tool="freehand" title="Pen">✏️</button>
+              <button class="canvas-tool" data-tool="text" title="Text">T</button>
+            </div>
+            <div class="canvas-divider"></div>
+            <div class="canvas-tool-group">
+              <label class="color-picker-label">Color: <input type="color" id="canvas-color-picker" value="#38bdf8"></label>
+              <label class="color-picker-label">Fill: <input type="color" id="canvas-fill-picker" value="#1e293b"></label>
+              <select id="canvas-stroke-width" class="select-sm">
+                <option value="2">2px</option>
+                <option value="3" selected>3px</option>
+                <option value="5">5px</option>
+              </select>
+            </div>
+            <div class="canvas-divider"></div>
+            <div class="canvas-tool-group">
+              <button id="btn-canvas-undo" class="btn-sm">↩ Undo</button>
+              <button id="btn-canvas-clear" class="btn-sm danger">🗑 Clear</button>
+              <button id="btn-canvas-export" class="btn-sm">Export PNG</button>
+            </div>
+          </div>
+          <div class="canvas-viewport studio-canvas-viewport">
+            <canvas id="whiteboard-canvas"></canvas>
+          </div>
         </div>
-      </section>
+      </aside>
     </main>
 
     <!-- Bottom Status Bar (Notepad++ Classic information bar) -->
     <footer class="status-bar">
       <div class="status-left">
         <span id="status-cursor" class="status-item">Ln 1, Col 1</span>
-        <span id="status-lines" class="status-item">Lines: 1</span>
+        <span id="status-sections" class="status-item">Sections: 1</span>
         <span id="status-length" class="status-item">Length: 0</span>
         <span id="status-filesize" class="status-item">0 bytes</span>
       </div>
@@ -264,18 +333,15 @@
         </span>
         <div class="status-item language-select-item">
           <select id="select-language" class="language-dropdown">
+            <option value="markdown">Markdown Notes (.md)</option>
             <option value="plaintext">Normal Text (.txt)</option>
-            <option value="markdown">Markdown (.md)</option>
             <option value="mermaid">Mermaid Diagram (.mmd)</option>
             <option value="javascript">JavaScript (.js)</option>
             <option value="typescript">TypeScript (.ts)</option>
             <option value="python">Python (.py)</option>
             <option value="html">HTML (.html)</option>
-            <option value="css">CSS (.css)</option>
             <option value="json">JSON (.json)</option>
-            <option value="cpp">C++ (.cpp)</option>
             <option value="sql">SQL (.sql)</option>
-            <option value="shell">Shell Script (.sh)</option>
           </select>
         </div>
         <span class="status-item">UTF-8</span>
@@ -292,12 +358,8 @@
         </div>
         <div class="modal-body">
           <div id="google-signed-out-view">
-            <p>Connect your Google account to access your documents, tabs, and diagrams on <strong>macOS, Windows, iPad, or any browser</strong> instantly.</p>
+            <p>Connect your Google account to access your notes, tabs, and diagrams on <strong>macOS, Windows, iPad, or any browser</strong> instantly.</p>
             <div class="g-signin-container">
-              <div id="g_id_onload"
-                   data-client_id="YOUR_GOOGLE_CLIENT_ID"
-                   data-callback="handleCredentialResponse">
-              </div>
               <button id="btn-mock-google-login" class="btn-google-large">
                 <svg viewBox="0 0 24 24" width="20" height="20">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

@@ -1138,3 +1138,656 @@ input:checked + .slider:before {
   to { transform: translateY(0); opacity: 1; }
 }
 
+
+/* ==========================================================================
+   Jupyter-Style Notebook Workspace & Sections
+   ========================================================================== */
+.notebook-workspace {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+}
+
+.notebook-inner {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 36px 28px 80px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.notebook-document-header {
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+}
+
+.notebook-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  outline: none;
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+  margin-left: -6px;
+  letter-spacing: -0.5px;
+  transition: var(--transition);
+}
+
+.notebook-title:focus {
+  background-color: var(--bg-hover);
+  box-shadow: 0 0 0 1px var(--accent-green);
+}
+
+.notebook-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.meta-dot {
+  opacity: 0.5;
+}
+
+/* Sections Container */
+.sections-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 120px;
+}
+
+/* Individual Section Card */
+.notebook-section {
+  position: relative;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
+}
+
+.notebook-section:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.notebook-section.active-focus {
+  border-color: var(--accent-green);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.12);
+}
+
+.notebook-section.dragging {
+  opacity: 0.4;
+  border-style: dashed;
+}
+
+/* Section Header Bar */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background-color: rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid var(--border-color);
+  user-select: none;
+  font-size: 12px;
+}
+
+.section-drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.section-drag-handle:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: var(--bg-tertiary);
+  color: var(--accent-cyan);
+}
+
+.notebook-section.diagram-section .section-badge {
+  background-color: rgba(139, 92, 246, 0.15);
+  color: var(--accent-purple);
+}
+
+.section-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  outline: none;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+.section-title:focus {
+  background-color: var(--bg-hover);
+}
+
+.section-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+
+.notebook-section:hover .section-actions {
+  opacity: 1;
+}
+
+.btn-section-action {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: var(--transition);
+}
+
+.btn-section-action:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.btn-section-action.danger:hover {
+  color: var(--accent-rose);
+  background-color: rgba(244, 63, 94, 0.1);
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+/* Section Content Area */
+.section-body {
+  padding: 16px;
+}
+
+/* Note Section Editor & Preview */
+.note-textarea {
+  width: 100%;
+  min-height: 80px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.note-preview {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  cursor: text;
+  min-height: 40px;
+}
+
+.note-preview h1 { font-size: 20px; margin: 12px 0 8px; color: var(--text-primary); }
+.note-preview h2 { font-size: 17px; margin: 10px 0 6px; color: var(--text-primary); }
+.note-preview h3 { font-size: 15px; margin: 8px 0 4px; color: var(--text-primary); }
+.note-preview p { margin-bottom: 8px; }
+.note-preview ul, .note-preview ol { margin-left: 20px; margin-bottom: 8px; }
+.note-preview code { font-family: var(--font-code); background: var(--bg-primary); padding: 2px 5px; border-radius: 4px; font-size: 13px; }
+.note-preview pre { background: var(--bg-primary); padding: 12px; border-radius: var(--radius-sm); overflow-x: auto; margin: 8px 0; }
+.note-preview pre code { background: transparent; padding: 0; }
+.note-preview blockquote { border-left: 3px solid var(--accent-cyan); padding-left: 12px; color: var(--text-secondary); margin: 8px 0; }
+.note-preview table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+.note-preview th, .note-preview td { border: 1px solid var(--border-color); padding: 6px 10px; text-align: left; }
+.note-preview th { background-color: var(--bg-tertiary); }
+
+/* Diagram Section Display */
+.diagram-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px 12px;
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+
+.diagram-display svg {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+.diagram-inline-editor {
+  margin-top: 10px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 10px;
+}
+
+.diagram-code-textarea {
+  width: 100%;
+  min-height: 120px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-code);
+  font-size: 13px;
+  padding: 10px;
+  outline: none;
+  resize: vertical;
+}
+
+.diagram-code-textarea:focus {
+  border-color: var(--accent-purple);
+}
+
+/* Interactive Divider Insertion Line between sections */
+.section-insert-divider {
+  height: 18px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  margin: -6px 0;
+  z-index: 5;
+}
+
+.section-insert-divider:hover,
+.section-insert-divider.drop-target-active {
+  opacity: 1;
+}
+
+.section-insert-divider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-green), transparent);
+}
+
+.divider-buttons {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  background-color: var(--bg-primary);
+  padding: 0 10px;
+}
+
+.btn-divider-add {
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 10px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-divider-add:hover {
+  background-color: var(--accent-green);
+  color: #000;
+  font-weight: 600;
+  border-color: var(--accent-green);
+}
+
+/* Drop Target Highlights for Drag and Drop */
+.drop-zone-active {
+  border: 2px dashed var(--accent-green) !important;
+  background-color: rgba(16, 185, 129, 0.08) !important;
+}
+
+/* Bottom Add Section Actions */
+.notebook-bottom-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 20px;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+}
+
+.notebook-bottom-actions:hover,
+.notebook-bottom-actions.drop-target-active {
+  border-color: var(--accent-green);
+  background-color: rgba(16, 185, 129, 0.04);
+}
+
+.btn-add-section {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-add-section:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
+.btn-add-section.studio-accent {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.15));
+  border-color: var(--accent-purple);
+  color: var(--text-primary);
+}
+
+.btn-add-section.studio-accent:hover {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+}
+
+/* Raw Editor Workspace */
+.raw-workspace {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================================================================
+   Separate Diagram Studio Drawer (Slide-out on Demand)
+   ========================================================================== */
+.diagram-studio-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 520px;
+  height: 100%;
+  background-color: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  box-shadow: -6px 0 28px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.diagram-studio-drawer.hidden {
+  transform: translateX(100%);
+  pointer-events: none;
+}
+
+.studio-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background-color: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.studio-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.studio-icon {
+  font-size: 22px;
+}
+
+.studio-title-group h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.studio-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.btn-close-studio {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.btn-close-studio:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+/* Draggable Diagram Bar */
+.studio-drag-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.draggable-diagram-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.12));
+  border: 1px dashed var(--accent-green);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: grab;
+  user-select: none;
+  transition: var(--transition);
+}
+
+.draggable-diagram-card:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.draggable-diagram-card:active {
+  cursor: grabbing;
+}
+
+.drag-icon {
+  font-size: 16px;
+  color: var(--accent-green);
+}
+
+.btn-studio-insert {
+  padding: 8px 14px;
+  background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+  color: #000;
+  font-weight: 700;
+  font-size: 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-studio-insert:hover {
+  opacity: 0.9;
+  box-shadow: var(--shadow-glow);
+}
+
+/* Studio Tabs */
+.studio-tabs {
+  display: flex;
+  background-color: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.studio-tab {
+  flex: 1;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.studio-tab:hover {
+  color: var(--text-primary);
+}
+
+.studio-tab.active {
+  color: var(--accent-green);
+  border-bottom-color: var(--accent-green);
+  background-color: var(--bg-secondary);
+}
+
+.studio-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 14px 18px;
+  gap: 12px;
+}
+
+.studio-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.studio-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.studio-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.studio-editor-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.studio-textarea {
+  width: 100%;
+  height: 140px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-family: var(--font-code);
+  font-size: 12px;
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+}
+
+.studio-textarea:focus {
+  border-color: var(--accent-green);
+}
+
+.studio-preview-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+}
+
+.studio-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.studio-diagram-render-area {
+  flex: 1;
+  min-height: 200px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+
+.studio-diagram-render-area svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.studio-canvas-viewport {
+  width: 100%;
+  height: 480px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+/* Custom Highlight buttons in Toolbar */
+.tool-btn.studio-btn {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.15));
+  border-color: var(--accent-purple);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.tool-btn.studio-btn:hover {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
+}
